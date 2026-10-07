@@ -93,7 +93,7 @@ class ProjectRAGService:
         messages = [
             SystemMessage(
                 content=(
-                    "You are an intelligent, helpful, and friendly project documentation assistant. "
+                    "You are an intelligent, helpful, & friendly project documentation assistant. "
                     "If the user is just greeting you, introducing themselves, or making casual conversation, respond naturally and warmly. "
                     "For any technical or project-related questions, answer directly in 2-5 short paragraphs or bullets, using ONLY the private project context below. "
                     "Do not explain the retrieval process, list all documents, or dump large excerpts. "
