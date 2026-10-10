@@ -1,13 +1,18 @@
 import { useState } from 'react';
-import { Activity, ArrowRight, Sparkles, Plus, FolderOpen } from 'lucide-react';
+import { Activity, ArrowRight, Sparkles, Plus, FolderOpen,ShieldCheck, ScanSearch } from 'lucide-react';
 import CreateProjectModal from './CreateProjectModal';
 
 interface HomePageProps {
   onNewProject: (projectId: string, projectName: string) => void;
   onOpenProject: () => void;
+  onCyberAssessment: () => void;
 }
 
-export default function HomePage({ onNewProject, onOpenProject }: HomePageProps) {
+export default function HomePage({
+  onNewProject,
+  onOpenProject,
+  onCyberAssessment,
+}: HomePageProps) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -141,6 +146,59 @@ export default function HomePage({ onNewProject, onOpenProject }: HomePageProps)
 
             {/* Gradient orb decoration */}
             <div className="card-orb orb-blue" />
+          </div>
+
+                    {/* Cyber Intelligence Assessment Card */}
+          <div
+            className="project-card cyber-assessment-card"
+            onClick={onCyberAssessment}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onCyberAssessment();
+              }
+            }}
+          >
+            <div className="card-header">
+              <div className="card-icon cyber-assessment-icon">
+                <ShieldCheck size={28} />
+              </div>
+              <h2 className="card-title">
+                Cyber Intelligence Assessment
+              </h2>
+            </div>
+          
+            <p className="card-description">
+              Analyze your generated backend for potential security
+              vulnerabilities, static analysis findings, and code complexity.
+              Generate a consolidated assessment report with actionable
+              recommendations.
+            </p>
+          
+            <div className="card-features">
+              <div className="feature-badge">
+                Security Analysis
+              </div>
+              <div className="feature-badge">
+                Static Code Analysis
+              </div>
+              <div className="feature-badge">
+                Risk Assessment Report
+              </div>
+            </div>
+          
+            <div className="card-footer">
+              <span className="action-text">
+                Assess project security
+              </span>
+              <div className="action-icon">
+                <ArrowRight size={20} />
+              </div>
+            </div>
+          
+            <div className="card-orb orb-cyber" />
           </div>
         </section>
 

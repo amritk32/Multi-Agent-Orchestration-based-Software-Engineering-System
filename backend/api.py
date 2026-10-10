@@ -10,16 +10,22 @@ from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from datetime import datetime
 from sqlalchemy import inspect, text
+from mod2_workflow import Module2Workflow
+from schemas import AuditInput, Module3
+
+import traceback
 
 from sqlalchemy.orm import Session
 from database.database import Base, engine, SessionLocal
-from database.models import ProjectDetails, Artifacts
+from database.models import ProjectDetails, Artifacts, CyberIntelligenceReport
 
 from agents import Agents
 from mod1_workflow import Module1Workflow
 from events import set_event_queue
 from requirements_validation import validate_requirements
 from rag_service import ProjectRAGService
+
+from database.models import ProjectDetails, Artifacts
 
 app = FastAPI(
     title="Krishna Code AI",
@@ -127,6 +133,7 @@ llm2 = ChatOpenAI(
 
 agents = Agents(llm1, llm2)
 workflow = Module1Workflow(agents)
+module2_workflow = Module2Workflow(agents)
 rag_service = ProjectRAGService()
 
 
@@ -268,6 +275,131 @@ def generate(
         "syntax_error": result.get("syntax_error"),
         "report": result.get("report", ""),
     }
+
+
+# Added Module 3 endpoint
+@app.post("/api/projects/{project_id}/audit")
+def audit_project(
+    project_id: str,
+    db: Session = Depends(get_db),
+):
+    """Audit a project's generated backend and persist its report."""
+
+    project = (
+        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+    )
+
+    if project is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found.",
+        )
+
+    artifact = db.query(Artifacts).filter(Artifacts.project_id == project_id).first()
+
+    if artifact is None or not (artifact.backend_code or "").strip():
+        raise HTTPException(
+            status_code=400,
+            detail="This project has no generated backend code to audit.",
+        )
+
+    try:
+        initial_state = Module3(
+            source_code=artifact.backend_code,
+        )
+
+        result = module2_workflow.graph.invoke(initial_state.model_dump())
+
+        report = result.get("final_report")
+
+        if not report:
+            raise RuntimeError("Audit workflow returned no final report.")
+
+        # Store the report as JSON in the existing ORM model.
+        report_json = json.dumps(
+            jsonable_encoder(report),
+            ensure_ascii=False,
+        )
+
+        saved_report = (
+            db.query(CyberIntelligenceReport)
+            .filter(CyberIntelligenceReport.project_id == project_id)
+            .first()
+        )
+
+        if saved_report is None:
+            saved_report = CyberIntelligenceReport(
+                project_id=project_id,
+                status="completed",
+                report_json=report_json,
+            )
+            db.add(saved_report)
+        else:
+            saved_report.status = "completed"
+            saved_report.report_json = report_json
+            saved_report.created_at = datetime.now().astimezone()
+
+        db.commit()
+        db.refresh(saved_report)
+
+        return {
+            "success": True,
+            "project_id": project_id,
+            "report_id": saved_report.id,
+            "status": saved_report.status,
+            "created_at": saved_report.created_at,
+            "report": json.loads(saved_report.report_json),
+        }
+
+    except Exception as exc:
+        db.rollback()
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=str(exc),
+        )
+
+
+# Get Audited Project Details
+@app.get("/api/projects/{project_id}/audit")
+def get_project_audit(
+    project_id: str,
+    db: Session = Depends(get_db),
+):
+    """Retrieve the latest saved cyber-intelligence report."""
+
+    project = (
+        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+    )
+
+    if project is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Project not found.",
+        )
+
+    saved_report = (
+        db.query(CyberIntelligenceReport)
+        .filter(CyberIntelligenceReport.project_id == project_id)
+        .first()
+    )
+
+    if saved_report is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No audit report exists for this project.",
+        )
+
+    return {
+        "project_id": project_id,
+        "report_id": saved_report.id,
+        "status": saved_report.status,
+        "created_at": saved_report.created_at,
+        "report": json.loads(saved_report.report_json),
+    }
+
+
+# ------------------
 
 
 # Token by token streaming

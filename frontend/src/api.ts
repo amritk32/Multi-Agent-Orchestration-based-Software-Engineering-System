@@ -43,6 +43,25 @@ class APIClient {
     return response.data;
   }
 
+  // Added start Risk assesment module
+  async startRiskAssessment(projectId: string) {
+    try {
+      const response = await this.client.post(
+        `/api/projects/${projectId}/audit`
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const detail = error.response?.data?.detail;
+        if (typeof detail === 'string') {
+          throw new Error(detail);
+        }
+      }
+      throw error;
+    }
+  }
+
+
   async getProject(projectId: string): Promise<ProjectDetails> {
     const response = await this.client.get(`/api/projects/${projectId}`);
     return response.data;

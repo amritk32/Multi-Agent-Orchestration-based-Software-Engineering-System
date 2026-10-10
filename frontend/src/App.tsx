@@ -5,20 +5,26 @@ import OpenProject from './components/OpenProject';
 import { ProjectDetails } from './api';
 import { GenerationResult } from './types';
 import './styles.css';
+import CyberIntelligencePage from './components/CyberIntelligencePage';
 
-type AppScreen = 'home' | 'new-project' | 'open-project';
+type AppScreen = 'home' | 'new-project' | 'open-project' | 'cyber-assessment';;
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('home');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedProjectName, setSelectedProjectName] = useState<string | null>(null);
   const [initialResult, setInitialResult] = useState<GenerationResult | null>(null);
+  
 
   const handleNavigateToNewProject = (projectId: string, projectName: string) => {
     setSelectedProjectId(projectId);
     setSelectedProjectName(projectName);
     setInitialResult(null);
     setCurrentScreen('new-project');
+  };
+
+  const handleNavigateToCyberAssessment = () => {
+    setCurrentScreen('cyber-assessment');
   };
 
   const handleOpenExistingProject = (project: ProjectDetails) => {
@@ -50,6 +56,7 @@ export default function App() {
         <HomePage
           onNewProject={handleNavigateToNewProject}
           onOpenProject={handleNavigateToOpenProject}
+          onCyberAssessment={handleNavigateToCyberAssessment}
         />
       )}
       {currentScreen === 'new-project' && (
@@ -62,6 +69,9 @@ export default function App() {
       )}
       {currentScreen === 'open-project' && (
         <OpenProject onBack={handleNavigateHome} onOpenProject={handleOpenExistingProject} />
+      )}
+      {currentScreen === 'cyber-assessment' && (
+        <CyberIntelligencePage onBack={handleNavigateHome} />
       )}
     </>
   );

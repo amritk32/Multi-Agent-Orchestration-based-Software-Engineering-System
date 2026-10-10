@@ -1210,3 +1210,443 @@ pre {
   .delete-project-modal-footer .modal-button { justify-content: center; }
 }
 
+.cyber-assessment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cyber-code-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border-color, #37443f);
+  border-radius: 12px;
+}
+
+.cyber-code-status p {
+  margin: 6px 0 0;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+.cyber-assessment-scope h3 {
+  margin-bottom: 12px;
+}
+
+.cyber-assessment-scope ul {
+  padding-left: 20px;
+  line-height: 1.9;
+  opacity: 0.8;
+}
+
+.cyber-assessment-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid #168b65;
+  border-radius: 10px;
+  background: #126b50;
+  color: white;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.cyber-assessment-button:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.cyber-assessment-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cyber-assessment-hint {
+  margin: -12px 0 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.cyber-report-panel {
+  margin-top: 24px;
+}
+
+.cyber-report-json {
+  max-height: 700px;
+  overflow: auto;
+  padding: 18px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+
+/* Cyber Intelligence Assessment layout */
+.cyber-assessment-page .project-browser-grid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.25fr);
+  align-items: stretch;
+  gap: 24px;
+}
+
+.cyber-assessment-page .project-list-panel,
+.cyber-assessment-page .project-detail-panel {
+  min-width: 0;
+}
+
+.cyber-assessment-page .project-list-item {
+  width: 100%;
+  text-align: left;
+}
+
+.cyber-assessment-page .project-list-copy strong {
+  font-size: 15px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.cyber-assessment-page .project-list-copy small {
+  font-size: 12px;
+}
+
+.cyber-assessment-page .project-detail-header h2 {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .cyber-assessment-page .project-browser-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+
+.cyber-assessment-scope h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cyber-scope-list {
+  display: grid;
+  gap: 12px;
+}
+
+.cyber-scope-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border-color, #34443d);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cyber-scope-item > span {
+  font-size: 21px;
+}
+
+.cyber-scope-item strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cyber-scope-item p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.72;
+}
+
+
+
+.cyber-report-panel {
+  margin-top: 28px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #34443d);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.cyber-report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 26px;
+  border-bottom: 1px solid var(--border-color, #34443d);
+}
+
+.cyber-report-header h2 {
+  margin: 12px 0 8px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.cyber-report-header p {
+  margin: 0;
+  opacity: 0.7;
+}
+
+.cyber-report-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  color: #34d399;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cyber-report-body {
+  display: grid;
+  gap: 24px;
+  padding: 26px;
+}
+
+.cyber-report-section h3 {
+  margin: 0 0 14px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.cyber-summary-text {
+  margin: 0;
+  line-height: 1.85;
+  opacity: 0.88;
+}
+
+.cyber-findings-list {
+  display: grid;
+  gap: 14px;
+}
+
+.cyber-finding-card {
+  padding: 18px;
+  border: 1px solid var(--border-color, #34443d);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.cyber-finding-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.cyber-finding-heading h4 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 700;
+}
+
+.cyber-finding-card > p {
+  margin: 12px 0 0;
+  line-height: 1.7;
+  opacity: 0.82;
+  overflow-wrap: anywhere;
+}
+
+.cyber-severity {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.severity-high,
+.severity-critical {
+  color: #f87171;
+}
+
+.severity-medium,
+.severity-moderate {
+  color: #fbbf24;
+}
+
+.severity-low {
+  color: #60a5fa;
+}
+
+.severity-info,
+.severity-informational {
+  color: #a3a3a3;
+}
+
+.cyber-finding-location {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.cyber-recommendation {
+  margin-top: 16px;
+  padding: 14px;
+  border-left: 3px solid #34d399;
+  border-radius: 4px;
+  background: rgba(52, 211, 153, 0.06);
+}
+
+.cyber-recommendation strong {
+  font-size: 13px;
+}
+
+.cyber-recommendation p {
+  margin: 7px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.cyber-empty-findings {
+  opacity: 0.7;
+  line-height: 1.6;
+}
+
+.cyber-raw-details {
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color, #34443d);
+}
+
+.cyber-raw-details summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cyber-raw-details pre {
+  max-height: 500px;
+  margin-top: 14px;
+  padding: 16px;
+  overflow: auto;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .cyber-report-header,
+  .cyber-finding-heading {
+    flex-direction: column;
+  }
+
+  .cyber-report-header,
+  .cyber-report-body {
+    padding: 18px;
+  }
+}
+
+
+
+/* Cyber Intelligence Assessment: wider panels with clear separation */
+
+.cyber-assessment-page .open-project-container {
+  width: calc(100% - 2px);
+  max-width: 3900px;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.cyber-assessment-page .project-browser-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 47px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.cyber-assessment-page .project-list-panel,
+.cyber-assessment-page .project-detail-panel {
+  min-width: 0;
+  width: 155%;
+  box-sizing: border-box;
+}
+
+.cyber-assessment-page .open-project-container {
+  width: calc(100% - 40px);
+  max-width: none;
+  margin-inline: auto;
+}
+
+.cyber-assessment-page .project-browser-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 197px;
+  width: 100%;
+  align-items: stretch;
+}
+
+/* Keep both panels parallel on desktop and tablet */
+@media (min-width: 769px) {
+  .cyber-assessment-page .open-project-container {
+    width: calc(100% - 72px);
+  }
+
+  .cyber-assessment-page .project-browser-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 157px;
+  }
+}
+
+/* Stack panels only on narrow mobile screens */
+@media (max-width: 768px) {
+  .cyber-assessment-page .open-project-container {
+    width: calc(100% - 32px);
+  }
+
+  .cyber-assessment-page .project-browser-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+}
+
+
+.executive-summary-title {
+  text-align: center;
+}
+
+.executive-summary-text {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cyber-assessment-page .project-detail-header {
+  text-align: center;
+}
+
+.cyber-assessment-page .project-detail-header > div {
+  width: 100%;
+  text-align: center;
+}
+
+/* Add inner spacing to assessment content */
+.cyber-assessment-page .project-detail-panel {
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+/* Keep all assessment cards inside the panel */
+.cyber-assessment-page .project-detail-panel > * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Start Risk Assessment button */
+.cyber-assessment-page .project-detail-panel button {
+  width: 100%;
+  box-sizing: border-box;
+}

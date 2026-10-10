@@ -122,3 +122,26 @@ class ProjectChatHistory(Base):
     created_at = Column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+
+
+class CyberIntelligenceReport(Base):
+    __tablename__ = "cyber_intelligence_reports"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    project_id = Column(
+        String(36),
+        ForeignKey("project_details.project_id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+
+    status = Column(String(30), nullable=False, default="completed")
+    report_json = Column(Text, nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
