@@ -17,7 +17,7 @@ import traceback
 
 from sqlalchemy.orm import Session
 from database.database import Base, engine, SessionLocal
-from database.models import ProjectDetails, Artifacts, CyberIntelligenceReport
+from database.models import ProjectDetails, Artifacts
 
 from agents import Agents
 from mod1_workflow import Module1Workflow
@@ -321,34 +321,34 @@ def audit_project(
             ensure_ascii=False,
         )
 
-        saved_report = (
-            db.query(CyberIntelligenceReport)
-            .filter(CyberIntelligenceReport.project_id == project_id)
-            .first()
-        )
+        # saved_report = (
+        #     db.query(CyberIntelligenceReport)
+        #     .filter(CyberIntelligenceReport.project_id == project_id)
+        #     .first()
+        # )
 
-        if saved_report is None:
-            saved_report = CyberIntelligenceReport(
-                project_id=project_id,
-                status="completed",
-                report_json=report_json,
-            )
-            db.add(saved_report)
-        else:
-            saved_report.status = "completed"
-            saved_report.report_json = report_json
-            saved_report.created_at = datetime.now().astimezone()
+        # if saved_report is None:
+        #     saved_report = CyberIntelligenceReport(
+        #         project_id=project_id,
+        #         status="completed",
+        #         report_json=report_json,
+        #     )
+        #     db.add(saved_report)
+        # else:
+        #     saved_report.status = "completed"
+        #     saved_report.report_json = report_json
+        #     saved_report.created_at = datetime.now().astimezone()
 
-        db.commit()
-        db.refresh(saved_report)
+        # db.commit()
+        # db.refresh(saved_report)
 
         return {
             "success": True,
             "project_id": project_id,
-            "report_id": saved_report.id,
-            "status": saved_report.status,
-            "created_at": saved_report.created_at,
-            "report": json.loads(saved_report.report_json),
+            # "report_id": saved_report.id,
+            # "status": saved_report.status,
+            # "created_at": saved_report.created_at,
+            "report": json.loads(report_json),
         }
 
     except Exception as exc:
@@ -361,42 +361,42 @@ def audit_project(
 
 
 # Get Audited Project Details
-@app.get("/api/projects/{project_id}/audit")
-def get_project_audit(
-    project_id: str,
-    db: Session = Depends(get_db),
-):
-    """Retrieve the latest saved cyber-intelligence report."""
+# @app.get("/api/projects/{project_id}/audit")
+# def get_project_audit(
+#     project_id: str,
+#     db: Session = Depends(get_db),
+# ):
+#     """Retrieve the latest saved cyber-intelligence report."""
 
-    project = (
-        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
-    )
+#     project = (
+#         db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+#     )
 
-    if project is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Project not found.",
-        )
+#     if project is None:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="Project not found.",
+#         )
 
-    saved_report = (
-        db.query(CyberIntelligenceReport)
-        .filter(CyberIntelligenceReport.project_id == project_id)
-        .first()
-    )
+#     saved_report = (
+#         db.query(CyberIntelligenceReport)
+#         .filter(CyberIntelligenceReport.project_id == project_id)
+#         .first()
+#     )
 
-    if saved_report is None:
-        raise HTTPException(
-            status_code=404,
-            detail="No audit report exists for this project.",
-        )
+#     if saved_report is None:
+#         raise HTTPException(
+#             status_code=404,
+#             detail="No audit report exists for this project.",
+#         )
 
-    return {
-        "project_id": project_id,
-        "report_id": saved_report.id,
-        "status": saved_report.status,
-        "created_at": saved_report.created_at,
-        "report": json.loads(saved_report.report_json),
-    }
+#     return {
+#     "project_id": project_id,
+#     "report_id": saved_report.id,
+#     "status": saved_report.status,
+#     "created_at": saved_report.created_at,
+#     "report": json.loads(saved_report.report_json),
+# }
 
 
 # ------------------

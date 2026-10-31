@@ -19,7 +19,7 @@ class Module2Workflow:
     # ------------------------------------------------------------
 
     def cyber_security_node(self, state: Module3) -> dict[str, Any]:
-        print("➡️ Cyber Security Agent")
+        print("➡️ Security Analytics Agent")
         emit_event(
             {
                 "type": "agent_start",
@@ -55,78 +55,78 @@ class Module2Workflow:
     # 2. Static Analysis
     # ------------------------------------------------------------
 
-    def static_analysis_node(self, state: Module3) -> dict[str, Any]:
-        print("➡️ Static Analysis Agent")
-        emit_event(
-            {
-                "type": "agent_start",
-                "agent": "static_analysis",
-            }
-        )
+    # def static_analysis_node(self, state: Module3) -> dict[str, Any]:
+    #     print("➡️ Static Analysis Agent")
+    #     emit_event(
+    #         {
+    #             "type": "agent_start",
+    #             "agent": "static_analysis",
+    #         }
+    #     )
 
-        try:
-            result = self.agents.static_analysis_agent(
-                source_code=state.source_code,
-            )
+    #     try:
+    #         result = self.agents.static_analysis_agent(
+    #             source_code=state.source_code,
+    #         )
 
-            emit_event(
-                {
-                    "type": "agent_end",
-                    "agent": "static_analysis",
-                }
-            )
+    #         emit_event(
+    #             {
+    #                 "type": "agent_end",
+    #                 "agent": "static_analysis",
+    #             }
+    #         )
 
-            return {"static_result": result}
+    #         return {"static_result": result}
 
-        except Exception as exc:
-            emit_event(
-                {
-                    "type": "agent_error",
-                    "agent": "static_analysis",
-                    "error": str(exc),
-                }
-            )
-            raise
+    #     except Exception as exc:
+    #         emit_event(
+    #             {
+    #                 "type": "agent_error",
+    #                 "agent": "static_analysis",
+    #                 "error": str(exc),
+    #             }
+    #         )
+    #         raise
 
-    # ------------------------------------------------------------
-    # 3. Complexity Analysis
-    # ------------------------------------------------------------
+    # # ------------------------------------------------------------
+    # # 3. Complexity Analysis
+    # # ------------------------------------------------------------
 
-    def complexity_analysis_node(
-        self,
-        state: Module3,
-    ) -> dict[str, Any]:
-        print("➡️ Complexity Analysis Agent")
-        emit_event(
-            {
-                "type": "agent_start",
-                "agent": "complexity_analysis",
-            }
-        )
+    # def complexity_analysis_node(
+    #     self,
+    #     state: Module3,
+    # ) -> dict[str, Any]:
+    #     print("➡️ Complexity Analysis Agent")
+    #     emit_event(
+    #         {
+    #             "type": "agent_start",
+    #             "agent": "complexity_analysis",
+    #         }
+    #     )
 
-        try:
-            result = self.agents.complexity_analysis_agent(
-                source_code=state.source_code,
-            )
+    #     try:
+    #         result = self.agents.complexity_analysis_agent(
+    #             source_code=state.source_code,
+    #         )
 
-            emit_event(
-                {
-                    "type": "agent_end",
-                    "agent": "complexity_analysis",
-                }
-            )
+    #         emit_event(
+    #             {
+    #                 "type": "agent_end",
+    #                 "agent": "complexity_analysis",
+    #             }
+    #         )
 
-            return {"complexity_result": result}
+    #         return {"complexity_result": result}
 
-        except Exception as exc:
-            emit_event(
-                {
-                    "type": "agent_error",
-                    "agent": "complexity_analysis",
-                    "error": str(exc),
-                }
-            )
-            raise
+    #     except Exception as exc:
+    #         emit_event(
+    #             {
+    #                 "type": "agent_error",
+    #                 "agent": "complexity_analysis",
+    #                 "error": str(exc),
+    #             }
+    #         )
+    #         raise
 
     # ------------------------------------------------------------
     # 4. Final Audit
@@ -144,8 +144,8 @@ class Module2Workflow:
         try:
             report = self.agents.final_audit_agent(
                 security_result=state.security_result,
-                static_result=state.static_result,
-                complexity_result=state.complexity_result,
+                # static_result=state.static_result,
+                # complexity_result=state.complexity_result,
             )
 
             emit_event(
@@ -179,15 +179,15 @@ class Module2Workflow:
             self.cyber_security_node,
         )
 
-        workflow.add_node(
-            "static_analysis",
-            self.static_analysis_node,
-        )
+        # workflow.add_node(
+        #     "static_analysis",
+        #     self.static_analysis_node,
+        # )
 
-        workflow.add_node(
-            "complexity_analysis",
-            self.complexity_analysis_node,
-        )
+        # workflow.add_node(
+        #     "complexity_analysis",
+        #     self.complexity_analysis_node,
+        # )
 
         workflow.add_node(
             "final_audit",
@@ -196,15 +196,15 @@ class Module2Workflow:
 
         # Start all three independent analyses.
         workflow.add_edge(START, "cyber_security")
-        workflow.add_edge(START, "static_analysis")
-        workflow.add_edge(START, "complexity_analysis")
+        # workflow.add_edge(START, "static_analysis")
+        # workflow.add_edge(START, "complexity_analysis")
 
         # Wait for all three before generating the final report.
         workflow.add_edge(
             [
                 "cyber_security",
-                "static_analysis",
-                "complexity_analysis",
+                # "static_analysis",
+                # "complexity_analysis",
             ],
             "final_audit",
         )
