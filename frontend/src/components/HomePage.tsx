@@ -1,20 +1,23 @@
 import { useState } from 'react';
-import { Activity, ArrowRight, Sparkles, Plus, FolderOpen,ShieldCheck, ScanSearch } from 'lucide-react';
+import { Activity, ArrowRight, Sparkles, Plus, FolderOpen, ShieldCheck } from 'lucide-react';
 import CreateProjectModal from './CreateProjectModal';
 
 interface HomePageProps {
   onNewProject: (projectId: string, projectName: string) => void;
   onOpenProject: () => void;
   onCyberAssessment: () => void;
+  onLogout: () => void;
 }
 
 export default function HomePage({
   onNewProject,
   onOpenProject,
   onCyberAssessment,
+  onLogout,
 }: HomePageProps) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
 
   const handleCreateProjectClick = () => {
     setShowModal(true);
@@ -33,8 +36,7 @@ export default function HomePage({
           <span className="brand-icon"><Activity size={21} /></span> krishna.code
         </div>
         <div className="network-status">
-          <span className="status-dot" />
-          <span className="mono-label">Agent network online</span>
+          <button type="button" className="header-logout-button" onClick={() => setShowLogoutConfirmation(true)}>Sign out</button>
         </div>
       </header>
 
@@ -228,6 +230,18 @@ export default function HomePage({
         onCreateProject={handleCreateProject}
         isLoading={isLoading}
       />
+      {showLogoutConfirmation && (
+        <div className="logout-confirmation-backdrop" role="presentation">
+          <div className="logout-confirmation" role="dialog" aria-modal="true" aria-labelledby="logout-confirmation-title">
+            <h2 id="logout-confirmation-title">Sign out?</h2>
+            <p>Are you sure you want to sign out?</p>
+            <div className="logout-confirmation-actions">
+              <button type="button" className="logout-cancel-button" onClick={() => setShowLogoutConfirmation(false)}>No</button>
+              <button type="button" className="logout-confirm-button" onClick={onLogout}>Yes, sign out</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

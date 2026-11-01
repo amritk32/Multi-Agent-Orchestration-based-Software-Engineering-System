@@ -165,8 +165,6 @@ export default function CyberIntelligencePage({
         </div>
 
         <div className="network-status">
-          <span className="status-dot" />
-          <span className="mono-label">Agent network online</span>
         </div>
       </header>
 

@@ -6,10 +6,16 @@ import { ProjectDetails } from './api';
 import { GenerationResult } from './types';
 import './styles.css';
 import CyberIntelligencePage from './components/CyberIntelligencePage';
+import { useAuth } from './auth/AuthContext';
+import LoginPage from './auth/LoginPage';
+import SignupPage from './auth/SignupPage';
 
-type AppScreen = 'home' | 'new-project' | 'open-project' | 'cyber-assessment';;
+type AppScreen = 'home' | 'new-project' | 'open-project' | 'cyber-assessment';
+type AuthScreen = 'login' | 'signup';
 
 export default function App() {
+  const { isLoading, session, signOut } = useAuth();
+  const [authScreen, setAuthScreen] = useState<AuthScreen>('login');
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('home');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedProjectName, setSelectedProjectName] = useState<string | null>(null);
@@ -50,6 +56,16 @@ export default function App() {
     setCurrentScreen('home');
   };
 
+  if (isLoading) {
+    return <div className="auth-loading" aria-label="Restoring session"><span className="auth-spinner" /></div>;
+  }
+
+  if (!session) {
+    return authScreen === 'login'
+      ? <LoginPage onSwitchToSignup={() => setAuthScreen('signup')} />
+      : <SignupPage onSwitchToLogin={() => setAuthScreen('login')} />;
+  }
+
   return (
     <>
       {currentScreen === 'home' && (
@@ -57,6 +73,7 @@ export default function App() {
           onNewProject={handleNavigateToNewProject}
           onOpenProject={handleNavigateToOpenProject}
           onCyberAssessment={handleNavigateToCyberAssessment}
+          onLogout={() => void signOut()}
         />
       )}
       {currentScreen === 'new-project' && (

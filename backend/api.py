@@ -19,6 +19,8 @@ from sqlalchemy.orm import Session
 from database.database import Base, engine, SessionLocal
 from database.models import ProjectDetails, Artifacts
 
+from auth.dependencies import get_current_user
+
 from agents import Agents
 from mod1_workflow import Module1Workflow
 from events import set_event_queue
@@ -82,6 +84,8 @@ def get_db():
 def create_project(
     request: CreateProjectRequest,
     db: Session = Depends(get_db),
+    # Added Authentication for current user
+    current_user: dict = Depends(get_current_user),
 ):
 
     project_name = request.project_name.strip()
@@ -94,6 +98,8 @@ def create_project(
 
     project = ProjectDetails(
         project_name=project_name,
+        # Extract user ID
+        user_id=current_user["id"],
     )
 
     db.add(project)
@@ -170,6 +176,8 @@ def health_check():
 def generate(
     request: GenerateRequest,
     db: Session = Depends(get_db),
+    # Added Authentication before generating the code
+    current_user: dict = Depends(get_current_user),
 ):
     requirements = request.requirements.strip()
 
@@ -186,7 +194,10 @@ def generate(
     # Verify project exists
     project = (
         db.query(ProjectDetails)
-        .filter(ProjectDetails.project_id == request.project_id)
+        .filter(
+            ProjectDetails.project_id == request.project_id,
+            ProjectDetails.user_id == current_user["id"],
+        )
         .first()
     )
     if not project:
@@ -282,11 +293,18 @@ def generate(
 def audit_project(
     project_id: str,
     db: Session = Depends(get_db),
+    # Added Authentication before auditing the code
+    current_user: dict = Depends(get_current_user),
 ):
     """Audit a project's generated backend and persist its report."""
 
     project = (
-        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+        db.query(ProjectDetails)
+        .filter(
+            ProjectDetails.project_id == project_id,
+            ProjectDetails.user_id == current_user["id"],
+        )
+        .first()
     )
 
     if project is None:
@@ -321,33 +339,9 @@ def audit_project(
             ensure_ascii=False,
         )
 
-        # saved_report = (
-        #     db.query(CyberIntelligenceReport)
-        #     .filter(CyberIntelligenceReport.project_id == project_id)
-        #     .first()
-        # )
-
-        # if saved_report is None:
-        #     saved_report = CyberIntelligenceReport(
-        #         project_id=project_id,
-        #         status="completed",
-        #         report_json=report_json,
-        #     )
-        #     db.add(saved_report)
-        # else:
-        #     saved_report.status = "completed"
-        #     saved_report.report_json = report_json
-        #     saved_report.created_at = datetime.now().astimezone()
-
-        # db.commit()
-        # db.refresh(saved_report)
-
         return {
             "success": True,
             "project_id": project_id,
-            # "report_id": saved_report.id,
-            # "status": saved_report.status,
-            # "created_at": saved_report.created_at,
             "report": json.loads(report_json),
         }
 
@@ -360,45 +354,6 @@ def audit_project(
         )
 
 
-# Get Audited Project Details
-# @app.get("/api/projects/{project_id}/audit")
-# def get_project_audit(
-#     project_id: str,
-#     db: Session = Depends(get_db),
-# ):
-#     """Retrieve the latest saved cyber-intelligence report."""
-
-#     project = (
-#         db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
-#     )
-
-#     if project is None:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="Project not found.",
-#         )
-
-#     saved_report = (
-#         db.query(CyberIntelligenceReport)
-#         .filter(CyberIntelligenceReport.project_id == project_id)
-#         .first()
-#     )
-
-#     if saved_report is None:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="No audit report exists for this project.",
-#         )
-
-#     return {
-#     "project_id": project_id,
-#     "report_id": saved_report.id,
-#     "status": saved_report.status,
-#     "created_at": saved_report.created_at,
-#     "report": json.loads(saved_report.report_json),
-# }
-
-
 # ------------------
 
 
@@ -408,6 +363,8 @@ async def generate_stream(
     requirements: str,
     project_id: str,
     db: Session = Depends(get_db),
+    # Added Authentication before auditing the code
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Stream-based code generation endpoint using Server-Sent Events.
@@ -426,7 +383,12 @@ async def generate_stream(
         raise HTTPException(status_code=400, detail=validation_error)
 
     project = (
-        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+        db.query(ProjectDetails)
+        .filter(
+            ProjectDetails.project_id == project_id,
+            ProjectDetails.user_id == current_user["id"],
+        )
+        .first()
     )
     if not project:
         raise HTTPException(status_code=404, detail="Project not found.")
@@ -583,13 +545,20 @@ async def stream_project_chat(
     project_id: str,
     request: ProjectChatRequest,
     db: Session = Depends(get_db),
+    # Added Authentication before streaming tokens
+    current_user: dict = Depends(get_current_user),
 ):
     question = request.question.strip()
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
     project = (
-        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+        db.query(ProjectDetails)
+        .filter(
+            ProjectDetails.project_id == project_id,
+            ProjectDetails.user_id == current_user["id"],
+        )
+        .first()
     )
     if not project:
         raise HTTPException(status_code=404, detail="Project not found.")
@@ -621,12 +590,16 @@ async def stream_project_chat(
 
 # Show all projects
 @app.get("/api/projects")
-def list_projects(db: Session = Depends(get_db)):
-    """
-    Get all projects from the database.
-    Returns project_id, project_name, and created_at.
-    """
-    projects = db.query(ProjectDetails).order_by(ProjectDetails.created_at.desc()).all()
+def list_projects(
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    projects = (
+        db.query(ProjectDetails)
+        .filter(ProjectDetails.user_id == current_user["id"])
+        .order_by(ProjectDetails.created_at.desc())
+        .all()
+    )
 
     return [
         {
@@ -643,12 +616,18 @@ def list_projects(db: Session = Depends(get_db)):
 def get_project(
     project_id: str,
     db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Get a specific project and its artifacts.
     """
     project = (
-        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+        db.query(ProjectDetails)
+        .filter(
+            ProjectDetails.project_id == project_id,
+            ProjectDetails.user_id == current_user["id"],
+        )
+        .first()
     )
 
     if not project:
@@ -684,10 +663,17 @@ def get_project(
 def delete_project(
     project_id: str,
     db: Session = Depends(get_db),
+    # Added authentication before deletion
+    current_user: dict = Depends(get_current_user),
 ):
     """Delete a project and all artifacts owned by it."""
     project = (
-        db.query(ProjectDetails).filter(ProjectDetails.project_id == project_id).first()
+        db.query(ProjectDetails)
+        .filter(
+            ProjectDetails.project_id == project_id,
+            ProjectDetails.user_id == current_user["id"],
+        )
+        .first()
     )
 
     if not project:

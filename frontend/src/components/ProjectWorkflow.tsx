@@ -326,7 +326,7 @@ export default function ProjectWorkflow({ onBack, projectId, projectName, initia
             </button>
           </div>
           <div className="brand-mark"><span className="brand-icon"><Activity size={21} /></span> krishna.code</div>
-          <div className="network-status"><span className="status-dot" /><span className="mono-label">Agent network online</span></div>
+          <div className="network-status" />
         </div>
 
         <div className="results-shell">
@@ -455,7 +455,7 @@ export default function ProjectWorkflow({ onBack, projectId, projectName, initia
           <ArrowLeft size={16} /> Home
         </button>
         <div className="brand-mark"><span className="brand-icon"><Activity size={21} /></span> krishna.code</div>
-        <div className="network-status"><span className="status-dot" /><span className="mono-label">Agent network online</span></div>
+        <div className="network-status" />
         <button className="new-generation" title="Reset workspace" onClick={() => setRequirements('')}><RotateCcw size={16} /></button>
       </header>
 

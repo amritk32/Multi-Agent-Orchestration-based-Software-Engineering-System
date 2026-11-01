@@ -98,8 +98,6 @@ export default function OpenProject({ onBack, onOpenProject }: OpenProjectProps)
           <span className="brand-icon"><Activity size={21} /></span> krishna.code
         </div>
         <div className="network-status">
-          <span className="status-dot" />
-          <span className="mono-label">Agent network online</span>
         </div>
       </header>
 

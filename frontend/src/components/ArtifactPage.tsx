@@ -77,7 +77,7 @@ export default function ArtifactPage({ result, projectName, onBack }: ArtifactPa
           <ArrowLeft size={16} /> Back to generation
         </button>
         <div className="brand-mark"><span className="brand-icon"><Layers size={21} /></span> krishna.code</div>
-        <div className="network-status"><span className="status-dot" /><span className="mono-label">Artifact vault</span></div>
+        <div className="network-status" />
       </header>
 
       <main className="artifact-layout">

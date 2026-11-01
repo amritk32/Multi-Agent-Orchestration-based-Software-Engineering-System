@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowUpRight, X } from 'lucide-react';
-import { API_BASE_URL } from '../api';
+import { apiClient } from '../api';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -31,21 +31,7 @@ export default function CreateProjectModal({
     try {
       setIsSubmitting(true);
       setError('');
-      const response = await fetch(`${API_BASE_URL}/api/projects`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          project_name: projectName,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create project');
-      }
-
-      const project = await response.json();
+      const project = await apiClient.createProject(projectName);
       onCreateProject(project.project_name, project.project_id);
       setProjectName('');
       setError('');

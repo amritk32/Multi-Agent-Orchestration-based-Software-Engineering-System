@@ -1,3 +1,3 @@
 import os
 
-OPEN_AI_API = "---"
+OPEN_AI_API = ""
