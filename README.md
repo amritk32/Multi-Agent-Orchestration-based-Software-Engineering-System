@@ -12,6 +12,7 @@ frontend, and README artifacts.
 
 ## Features
 
+
 - Supabase email/password signup and login.
 - Persistent authenticated sessions with automatic token refresh.
 - Protected frontend workspace and logout confirmation.
