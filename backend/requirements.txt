@@ -16,6 +16,7 @@ python-dotenv
 sqlalchemy
 PyJWT
 psycopg[binary]
+cryptography
 
 # LangChain workflows and model providers
 langchain
