@@ -53,8 +53,8 @@ echo "✓ Virtual environment activated"
 # Install dependencies
 echo "📥 Installing Python dependencies..."
 pip install --quiet --upgrade pip
-# Install the RAG retrievers and FAISS index.
-pip install --quiet fastapi uvicorn pydantic python-dotenv sqlalchemy langchain langchain-openai langchain-core langchain-community langchain-ollama langgraph faiss-cpu rank-bm25
+# Install the complete backend dependency set from the repository manifest.
+pip install --quiet -r ../requirements.txt
 echo "✓ Python dependencies installed"
 
 # Check for API key
