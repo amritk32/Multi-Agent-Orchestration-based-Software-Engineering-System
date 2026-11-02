@@ -35,13 +35,24 @@ class APIClient {
       },
     });
     this.client.interceptors.request.use(async (config) => {
-      const { data } = await supabase.auth.getSession();
-      if (data.session?.access_token) {
-        config.headers.Authorization = `Bearer ${data.session.access_token}`;
-      }
-      return config;
-      
-    });
+  console.log("DEBUG: API interceptor called");
+
+  const { data, error } = await supabase.auth.getSession();
+
+  console.log("DEBUG: Session exists:", !!data.session);
+  console.log("DEBUG: Session error:", error);
+
+  if (data.session?.access_token) {
+    config.headers.Authorization =
+      `Bearer ${data.session.access_token}`;
+
+    console.log("DEBUG: Authorization header attached");
+  } else {
+    console.log("DEBUG: Access token missing");
+  }
+
+  return config;
+});
     this.client.interceptors.response.use(
       (response) => response,
       async (error) => {
