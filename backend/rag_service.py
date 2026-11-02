@@ -1,17 +1,35 @@
 import json
 import uuid
 from datetime import datetime, timezone
+
+# Use library retrievers for semantic and exact-term matching.
+from langchain_classic.retrievers import EnsembleRetriever
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
+from langchain_community.retrievers import BM25Retriever
 from sqlalchemy.orm import Session
 
 from aapi import OPEN_AI_API
 from database.models import ProjectRAGDocument, ProjectChatHistory
 
+SYSTEM_PROMPT = (
+    "You are an intelligent, helpful, & friendly project documentation assistant. "
+    "If the user is just greeting you, introducing themselves, or making casual conversation, respond naturally and warmly. "
+    "For any technical or project-related questions, answer directly in 2-5 short paragraphs or bullets, using ONLY the private project context below. "
+    "Do not explain the retrieval process, list all documents, or dump large excerpts. "
+    "If a technical question is unsupported by the context, clearly say that the project documents do not specify it. "
+    "Never invent commands, endpoints, files, or behavior."
+)
+
 
 class ProjectRAGService:
     """Project-scoped retrieval over generated documents using OpenAI embeddings and FAISS."""
+
+    CHUNK_SIZE = 6000
+    RETRIEVAL_COUNT = 6
+    HISTORY_COUNT = 5
 
     def __init__(self) -> None:
         self.embeddings = OpenAIEmbeddings(
@@ -35,7 +53,7 @@ class ProjectRAGService:
         for document_type, content in documents.items():
             if not content or not content.strip():
                 continue
-            for chunk_index, chunk in enumerate(self._chunks(content)):
+            for chunk_index, chunk in enumerate(self._chunks(content, self.CHUNK_SIZE)):
                 embedding = self.embeddings.embed_query(chunk)
                 rows.append(
                     ProjectRAGDocument(
@@ -53,8 +71,7 @@ class ProjectRAGService:
         db.commit()
 
     def build_messages(self, db: Session, project_id: str, question: str):
-        """Retrieve concise context using FAISS and build the private model prompt with Memory."""
-        query_embedding = self.embeddings.embed_query(question)
+        """Retrieve project context and build the prompt with recent chat history."""
         rows = (
             db.query(ProjectRAGDocument)
             .filter(ProjectRAGDocument.project_id == project_id)
@@ -63,26 +80,31 @@ class ProjectRAGService:
         if not rows:
             raise ValueError("This project has no indexed documents yet.")
 
-        # --- FAISS INTEGRATION (Using existing DB embeddings) ---
-        text_embeddings = [(row.content, json.loads(row.embedding)) for row in rows]
-        metadatas = [{"document_type": row.document_type} for row in rows]
-
+        # Build both retrievers over the same project chunks: FAISS handles
+        # semantic matches while BM25 preserves exact-term and code matches.
+        documents = [
+            Document(
+                page_content=row.content,
+                metadata={"document_type": row.document_type},
+            )
+            for row in rows
+        ]
         vectorstore = FAISS.from_embeddings(
-            text_embeddings=text_embeddings,
+            text_embeddings=[(row.content, json.loads(row.embedding)) for row in rows],
             embedding=self.embeddings,
-            metadatas=metadatas,
+            metadatas=[{"document_type": row.document_type} for row in rows],
         )
-
-        # Retrieve top 6 documents
-        docs = vectorstore.similarity_search_by_vector(query_embedding, k=6)
-        context = "\n\n".join(
-            f"[{doc.metadata['document_type']}]\n{doc.page_content}" for doc in docs
+        semantic_retriever = vectorstore.as_retriever(
+            search_kwargs={"k": self.RETRIEVAL_COUNT}
         )
-
-        if not context:
-            context = "No relevant project context was found."
-
-        # --- MEMORY INTEGRATION (Fetch Chat History) ---
+        lexical_retriever = BM25Retriever.from_documents(documents)
+        lexical_retriever.k = self.RETRIEVAL_COUNT
+        hybrid_retriever = EnsembleRetriever(
+            retrievers=[semantic_retriever, lexical_retriever],
+            weights=[0.5, 0.5],
+        )
+        # Return the top six chunks from the weighted semantic/lexical ensemble.
+        docs = hybrid_retriever.invoke(question)[: self.RETRIEVAL_COUNT]
         history = (
             db.query(ProjectChatHistory)
             .filter(ProjectChatHistory.project_id == project_id)
@@ -90,27 +112,13 @@ class ProjectRAGService:
             .all()
         )
 
-        messages = [
-            SystemMessage(
-                content=(
-                    "You are an intelligent, helpful, & friendly project documentation assistant. "
-                    "If the user is just greeting you, introducing themselves, or making casual conversation, respond naturally and warmly. "
-                    "For any technical or project-related questions, answer directly in 2-5 short paragraphs or bullets, using ONLY the private project context below. "
-                    "Do not explain the retrieval process, list all documents, or dump large excerpts. "
-                    "If a technical question is unsupported by the context, clearly say that the project documents do not specify it. "
-                    "Never invent commands, endpoints, files, or behavior."
-                )
-            )
-        ]
+        context = "\n\n".join(
+            f"[{doc.metadata['document_type']}]\n{doc.page_content}" for doc in docs
+        )
+        context = context or "No relevant project context was found."
 
-        # Add last 10 messages to maintain context limit
-        for msg in history[-5:]:
-            if msg.role == "user":
-                messages.append(HumanMessage(content=msg.content))
-            else:
-                messages.append(AIMessage(content=msg.content))
-
-        # Add current question
+        messages = [SystemMessage(content=SYSTEM_PROMPT)]
+        messages.extend(self._history_messages(history[-self.HISTORY_COUNT :]))
         messages.append(
             HumanMessage(content=f"Project context:\n{context}\n\nQuestion: {question}")
         )
@@ -141,6 +149,14 @@ class ProjectRAGService:
         )
         db.add(ai_msg)
         db.commit()
+
+    @staticmethod
+    def _history_messages(history: list[ProjectChatHistory]) -> list:
+        message_types = {"user": HumanMessage, "assistant": AIMessage}
+        return [
+            message_types.get(msg.role, AIMessage)(content=msg.content)
+            for msg in history
+        ]
 
     @staticmethod
     def _chunks(content: str, size: int = 6000) -> list[str]:

@@ -67,7 +67,7 @@ printed by the application.
 - An OpenAI API key
 
 The backend uses OpenAI models for generation, embeddings, and project chat.
-The key is read from `OPENAI_API_KEY`.
+The key is read from `OPEN_AI_API` in `backend/.env`.
 
 ## Supabase setup
 
@@ -88,12 +88,13 @@ same project.
 
 ### Backend
 
-Set the OpenAI key in the shell that starts FastAPI:
+Add the backend API keys to `backend/.env`:
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
+OPEN_AI_API="your-openai-api-key"
 ```
 
+Save these values in `backend/.env`. The backend loads that file automatically.
 Never commit API keys, `.env` files containing secrets, virtual environments,
 SQLite databases, or generated build output.
 
@@ -133,7 +134,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install fastapi uvicorn pydantic python-dotenv sqlalchemy \
-  langchain-openai langchain-core langgraph langchain-ollama
+  langchain langchain-openai langchain-core langchain-community \
+  langgraph langchain-ollama faiss-cpu rank-bm25
 
 cd ../frontend
 npm install
@@ -148,7 +150,6 @@ Terminal 1, backend:
 ```bash
 cd backend
 source venv/bin/activate
-export OPENAI_API_KEY="your-openai-api-key"
 python -m uvicorn api:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -172,7 +173,6 @@ Open <http://localhost:5173>.
 `run.sh` starts Uvicorn and Vite together:
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
 ./run.sh
 ```
 
@@ -421,12 +421,12 @@ For another backend host or port:
 VITE_API_URL="http://localhost:9000" npm run dev
 ```
 
-### `OPENAI_API_KEY is not set`
+### `OPEN_AI_API is not set`
 
-Set the key in the same terminal that starts Uvicorn:
+Add the key to `backend/.env` and restart the backend:
 
-```bash
-export OPENAI_API_KEY="your-openai-api-key"
+```env
+OPEN_AI_API="your-openai-api-key"
 ```
 
 ### The project chatbot has no context

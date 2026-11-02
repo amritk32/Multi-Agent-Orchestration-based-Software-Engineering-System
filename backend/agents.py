@@ -12,7 +12,6 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel
 
-from aapi import OPEN_AI_API
 from schemas import *
 from prompts import *
 from generated_code_validation import validate_generated_source
