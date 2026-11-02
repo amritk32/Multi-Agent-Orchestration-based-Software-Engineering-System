@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Activity, ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
 import { supabase } from './supabase';
 
 type AuthMode = 'login' | 'signup';
@@ -85,7 +85,7 @@ export default function AuthForm({ mode, onSwitch }: AuthFormProps) {
       <div className="auth-atmosphere auth-atmosphere-two" />
       <section className="auth-card" aria-labelledby="auth-title">
         <div className="auth-brand">
-          <span className="auth-brand-icon"><Activity size={21} /></span>
+          <img className="auth-brand-icon" src="/krishna-code-logo.svg" alt="" />
           <span>Krishna Code AI</span>
         </div>
         <div className="auth-kicker"><span /> Secure engineering workspace</div>

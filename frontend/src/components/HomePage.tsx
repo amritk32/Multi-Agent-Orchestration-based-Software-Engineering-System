@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, ArrowRight, Sparkles, Plus, FolderOpen, ShieldCheck } from 'lucide-react';
+import { Activity, ArrowRight, Github, Sparkles, Plus, FolderOpen, ShieldCheck } from 'lucide-react';
 import CreateProjectModal from './CreateProjectModal';
 
 interface HomePageProps {
@@ -33,7 +33,8 @@ export default function HomePage({
       {/* Header */}
       <header className="signal-header">
         <div className="brand-mark">
-          <span className="brand-icon"><Activity size={21} /></span> krishna.code
+          <img className="brand-icon" src="/krishna-code-logo.svg" alt="" />
+          <span>Krishna Code AI</span>
         </div>
         <div className="network-status">
           <button type="button" className="header-logout-button" onClick={() => setShowLogoutConfirmation(true)}>Sign out</button>
@@ -207,7 +208,7 @@ export default function HomePage({
         {/* Stats Section */}
         <section className="home-stats">
           <div className="stat-item">
-            <div className="stat-number">4</div>
+            <div className="stat-number">6</div>
             <div className="stat-label">Specialized<br />AI Agents</div>
           </div>
           <div className="stat-divider" />
@@ -221,6 +222,19 @@ export default function HomePage({
             <div className="stat-label">Real-time<br />Agentic Workflow</div>
           </div>
         </section>
+
+        <footer className="home-author">
+          <span>Built by Amrit Kumar Gorai</span>
+          <a
+            href="https://github.com/amritk32"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Amrit Kumar Gorai on GitHub"
+          >
+            <Github size={16} />
+            <span>amritk32</span>
+          </a>
+        </footer>
       </main>
 
       {/* Create Project Modal */}

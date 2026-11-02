@@ -55,20 +55,6 @@ class ProjectResponse(BaseModel):
     created_at: datetime
 
 
-# @app.on_event("startup")
-# def startup_event():
-#     Base.metadata.create_all(bind=engine)
-
-#     # create_all does not alter existing SQLite tables, so add fields introduced
-#     # after the first database initialization explicitly.
-#     with engine.begin() as connection:
-#         artifact_columns = {
-#             column["name"] for column in inspect(connection).get_columns("artifacts")
-#         }
-#         if "readme" not in artifact_columns:
-#             connection.execute(text("ALTER TABLE artifacts ADD COLUMN readme TEXT"))
-
-
 def get_db():
     db = SessionLocal()
 

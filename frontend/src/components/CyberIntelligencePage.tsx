@@ -161,7 +161,7 @@ export default function CyberIntelligencePage({
           <span className="brand-icon">
             <Activity size={21} />
           </span>
-          krishna.code
+          Krishna Code AI
         </div>
 
         <div className="network-status">
