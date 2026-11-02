@@ -2,6 +2,9 @@ from functools import lru_cache
 
 import jwt
 from jwt import PyJWKClient
+import logging
+
+logger = logging.getLogger(__name__)
 
 SUPABASE_URL = "https://qtehhmnsjvnfwaktqvlt.supabase.co"
 
@@ -18,7 +21,8 @@ def verify_supabase_token(token: str) -> dict:
 
     try:
         signing_key = jwks_client.get_signing_key_from_jwt(token)
-
+        header = jwt.get_unverified_header(token)
+        logger.info("Incoming JWT algorithm: %s", header.get("alg"))
         payload = jwt.decode(
             token,
             signing_key.key,
