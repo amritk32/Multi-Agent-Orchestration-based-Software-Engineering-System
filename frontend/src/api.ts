@@ -40,6 +40,7 @@ class APIClient {
         config.headers.Authorization = `Bearer ${data.session.access_token}`;
       }
       return config;
+      
     });
     this.client.interceptors.response.use(
       (response) => response,
