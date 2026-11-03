@@ -1823,3 +1823,97 @@ pre {
   .network-status .mono-label { display: none; }
   .header-logout-button { margin-left: 4px; min-width: 100px; }
 }
+
+@media (max-width: 768px) {
+  .signal-header {
+    height: auto;
+    min-height: 64px;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .signal-header > .header-back-button {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+  }
+
+  .signal-header > .brand-mark {
+    min-width: 0;
+    flex: 1 1 auto;
+    gap: 8px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+
+  .signal-header > .brand-mark .brand-icon {
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .header-back-group {
+    flex: 1 1 100%;
+    margin-right: 0;
+  }
+
+  .header-back-group + .brand-mark {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .results-shell {
+    padding: 30px 16px 3rem;
+  }
+
+  .results-header {
+    align-items: flex-start;
+  }
+
+  .results-title {
+    font-size: clamp(2rem, 10vw, 2.75rem);
+  }
+
+  .results-actions {
+    position: static;
+    justify-items: stretch;
+    margin: 0 0 24px;
+  }
+
+  .results-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .result-code {
+    min-width: 0;
+  }
+
+  .code-toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .code-toolbar > span {
+    min-width: 0;
+    flex: 1 1 120px;
+  }
+
+  .copy-code-button {
+    flex: 0 0 auto;
+  }
+
+  .result-code > .p-2 {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .result-code pre {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
