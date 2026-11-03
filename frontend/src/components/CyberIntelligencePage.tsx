@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  Activity,
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
@@ -158,10 +157,8 @@ export default function CyberIntelligencePage({
         </button>
 
         <div className="brand-mark">
-          <span className="brand-icon">
-            <Activity size={21} />
-          </span>
-          Krishna Code AI
+          <img className="brand-icon" src="/krishna-code-logo.svg" alt="" />
+          <span>Krishna Code AI</span>
         </div>
 
         <div className="network-status">

@@ -1604,8 +1604,8 @@ pre {
 /* Cyber Intelligence Assessment: wider panels with clear separation */
 
 .cyber-assessment-page .open-project-container {
-  width: calc(100% - 2px);
-  max-width: 3900px;
+  width: 100%;
+  max-width: 1120px;
   margin-inline: auto;
   box-sizing: border-box;
 }
@@ -1613,7 +1613,7 @@ pre {
 .cyber-assessment-page .project-browser-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 47px;
+  gap: clamp(1rem, 3vw, 2.5rem);
   align-items: stretch;
   width: 100%;
 }
@@ -1621,45 +1621,39 @@ pre {
 .cyber-assessment-page .project-list-panel,
 .cyber-assessment-page .project-detail-panel {
   min-width: 0;
-  width: 155%;
+  width: 100%;
   box-sizing: border-box;
 }
 
 .cyber-assessment-page .open-project-container {
-  width: calc(100% - 40px);
-  max-width: none;
-  margin-inline: auto;
-}
-
-.cyber-assessment-page .project-browser-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 197px;
-  width: 100%;
-  align-items: stretch;
+  padding-inline: 0;
 }
 
 /* Keep both panels parallel on desktop and tablet */
 @media (min-width: 769px) {
   .cyber-assessment-page .open-project-container {
-    width: calc(100% - 72px);
-  }
-
-  .cyber-assessment-page .project-browser-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 157px;
+    width: 100%;
   }
 }
 
 /* Stack panels only on narrow mobile screens */
 @media (max-width: 768px) {
   .cyber-assessment-page .open-project-container {
-    width: calc(100% - 32px);
+    width: 100%;
   }
 
   .cyber-assessment-page .project-browser-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
+  }
+
+  .cyber-assessment-page .open-project-title {
+    font-size: clamp(2.25rem, 10vw, 3rem);
+    line-height: 1.05;
+  }
+
+  .cyber-assessment-page .open-project-description {
+    margin-bottom: 32px;
   }
 }
 
@@ -1698,6 +1692,38 @@ pre {
 /* Start Risk Assessment button */
 .cyber-assessment-page .project-detail-panel button {
   width: 100%;
+  box-sizing: border-box;
+}
+
+.cyber-assessment-page .project-list-item,
+.cyber-assessment-page .cyber-scope-item,
+.cyber-assessment-page .cyber-code-status {
+  min-width: 0;
+}
+
+.cyber-assessment-page .project-list-copy,
+.cyber-assessment-page .cyber-scope-item > div,
+.cyber-assessment-page .cyber-code-status > div {
+  min-width: 0;
+}
+
+.cyber-assessment-page .project-list-copy strong,
+.cyber-assessment-page .project-list-copy small,
+.cyber-assessment-page .cyber-scope-item p,
+.cyber-assessment-page .cyber-code-status p {
+  overflow-wrap: anywhere;
+}
+
+.cyber-assessment-page .cyber-report-panel,
+.cyber-assessment-page .cyber-report-body,
+.cyber-assessment-page .cyber-finding-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.cyber-assessment-page .cyber-raw-details pre {
+  max-width: 100%;
   box-sizing: border-box;
 }
 
