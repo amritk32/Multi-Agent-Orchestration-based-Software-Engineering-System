@@ -35,8 +35,7 @@ frontend, and README artifacts.
 - Streaming project chatbot responses through Server-Sent Events.
 - Source labels showing which project documents informed a chatbot answer.
 - SQLite persistence for projects, artifacts, and indexed RAG document chunks.
-- Cyber Intelligence assessments for generated backend code, including
-  security, static analysis, and complexity findings.
+- Cyber Intelligence security assessments for generated backend code.
 
 ## Architecture
 
@@ -116,6 +115,10 @@ client key. The placeholder value `your_actual_publishable_key` is not valid.
 Restart Vite after changing environment variables.
 
 `VITE_API_URL` is optional and defaults to `http://localhost:8000`.
+For local development, set it explicitly to `http://localhost:8000`. If it is
+set to a deployed URL, `npm run dev` will still load the frontend locally but
+all project, generation, and audit requests will go to that remote backend;
+the local uvicorn terminal will therefore show no request or agent logs.
 
 ## Installation
 
@@ -195,8 +198,8 @@ exist. Stop the combined launcher with `Ctrl+C`.
 8. Open **Ask the project** to use the grounded project assistant.
 9. Open **Open Project** later to reload projects belonging to the signed-in
    user.
-10. Open **Cyber Intelligence** to select a saved project and run security,
-    static analysis, and complexity checks against its generated backend.
+10. Open **Cyber Intelligence** to select a saved project and run a security
+    assessment against its generated backend.
 11. Use **Sign out**, then confirm the logout action.
 
 Unauthenticated users cannot access the project workspace. The backend remains
