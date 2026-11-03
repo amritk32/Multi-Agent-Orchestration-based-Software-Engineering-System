@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import {
-  Activity,
   AlertCircle,
   ArrowLeft,
   CheckCircle2,
@@ -32,8 +31,6 @@ interface AssessmentFinding {
 interface AssessmentReportData {
   overall_summary?: string;
   security_findings?: AssessmentFinding[];
-  static_analysis_findings?: AssessmentFinding[];
-  complexity_findings?: AssessmentFinding[];
   [key: string]: unknown;
 }
 
@@ -158,10 +155,8 @@ export default function CyberIntelligencePage({
         </button>
 
         <div className="brand-mark">
-          <span className="brand-icon">
-            <Activity size={21} />
-          </span>
-          krishna.code
+          <img className="brand-icon" src="/krishna-code-logo.svg" alt="" />
+          <span>Krishna Code AI</span>
         </div>
 
         <div className="network-status">
@@ -179,8 +174,8 @@ export default function CyberIntelligencePage({
           </h1>
 
           <p className="open-project-description">
-            Assess generated backend code using security analysis,
-            static analysis, and code complexity checks.
+            Assess generated backend code for security risks and
+            actionable remediation guidance.
           </p>
 
           {error && (
@@ -323,22 +318,6 @@ export default function CyberIntelligencePage({
                       </div>
 
                       <div className="cyber-scope-item">
-                        <span>🔎</span>
-                        <div>
-                          <strong>Static Code Analysis</strong>
-                          <p>Code quality issues and suspicious patterns</p>
-                        </div>
-                      </div>
-
-                      <div className="cyber-scope-item">
-                        <span>🧩</span>
-                        <div>
-                          <strong>Complexity Analysis</strong>
-                          <p>Complex functions and maintainability concerns</p>
-                        </div>
-                      </div>
-
-                      <div className="cyber-scope-item">
                         <span>📋</span>
                         <div>
                           <strong>Consolidated Report</strong>
@@ -418,14 +397,6 @@ export default function CyberIntelligencePage({
                     {
                       key: 'security_findings',
                       title: '🔐 Security Findings',
-                    },
-                    {
-                      key: 'static_analysis_findings',
-                      title: '🔎 Static Analysis Findings',
-                    },
-                    {
-                      key: 'complexity_findings',
-                      title: '🧩 Complexity Findings',
                     },
                   ] as const
                 ).map(({ key, title }) => {

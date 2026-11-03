@@ -53,17 +53,18 @@ echo "✓ Virtual environment activated"
 # Install dependencies
 echo "📥 Installing Python dependencies..."
 pip install --quiet --upgrade pip
-pip install --quiet fastapi uvicorn pydantic python-dotenv sqlalchemy langchain-openai langchain-core langchain-ollama langgraph
+# Install the complete backend dependency set from the repository manifest.
+pip install --quiet -r ../requirements.txt
 echo "✓ Python dependencies installed"
 
 # Check for API key
-if [ -z "$OPENAI_API_KEY" ]; then
+if [ -z "${OPEN_AI_API:-}" ]; then
     echo ""
-    echo -e "${YELLOW}⚠️  OPENAI_API_KEY environment variable not found${NC}"
-    echo "   Set it with: export OPENAI_API_KEY='your-key-here'"
+    echo -e "${YELLOW}⚠️  OPEN_AI_API is not set in backend/.env${NC}"
+    echo "   Add OPEN_AI_API to backend/.env"
     echo "   Then run the backend with: python -m uvicorn api:app --reload --port 8000"
 else
-    echo "✓ OPENAI_API_KEY is set"
+    echo "✓ OPEN_AI_API is configured"
 fi
 
 cd ..
@@ -102,7 +103,7 @@ echo ""
 echo "1️⃣  In Terminal 1 (Backend):"
 echo "   cd backend"
 echo "   source venv/bin/activate"
-echo "   export OPENAI_API_KEY='your-key-here'"
+echo "   Add OPEN_AI_API to backend/.env"
 echo "   python -m uvicorn api:app --reload --port 8000"
 echo ""
 echo "2️⃣  In Terminal 2 (Frontend):"

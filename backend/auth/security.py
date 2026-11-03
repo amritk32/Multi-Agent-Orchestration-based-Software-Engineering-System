@@ -2,6 +2,9 @@ from functools import lru_cache
 
 import jwt
 from jwt import PyJWKClient
+import logging
+
+logger = logging.getLogger(__name__)
 
 SUPABASE_URL = "https://qtehhmnsjvnfwaktqvlt.supabase.co"
 
@@ -12,11 +15,11 @@ jwks_client = PyJWKClient(JWKS_URL)
 
 
 def verify_supabase_token(token: str) -> dict:
-    """
-    Verify a Supabase access token and return its claims.
-    """
-
     try:
+        header = jwt.get_unverified_header(token)
+        logger.info("JWT algorithm: %s", header.get("alg"))
+        logger.info("JWT key ID: %s", header.get("kid"))
+
         signing_key = jwks_client.get_signing_key_from_jwt(token)
 
         payload = jwt.decode(
@@ -27,7 +30,9 @@ def verify_supabase_token(token: str) -> dict:
             issuer=JWT_ISSUER,
         )
 
+        logger.info("JWT verification successful")
         return payload
 
-    except jwt.PyJWTError as exc:
+    except Exception as exc:
+        logger.exception("JWT verification failed: %s", type(exc).__name__)
         raise ValueError("Invalid or expired authentication token") from exc

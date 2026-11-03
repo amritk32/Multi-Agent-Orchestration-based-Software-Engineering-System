@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       <main className="auth-shell">
         <section className="auth-card auth-config-card" role="alert">
           <div className="auth-brand">
-            <span className="auth-brand-icon">K</span>
+            <img className="auth-brand-icon" src="/krishna-code-logo.svg" alt="" />
             <span>Krishna Code AI</span>
           </div>
           <div className="auth-kicker"><span /> Configuration required</div>

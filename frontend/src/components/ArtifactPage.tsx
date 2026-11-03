@@ -76,7 +76,7 @@ export default function ArtifactPage({ result, projectName, onBack }: ArtifactPa
         <button onClick={onBack} className="header-back-button" title="Back to generation">
           <ArrowLeft size={16} /> Back to generation
         </button>
-        <div className="brand-mark"><span className="brand-icon"><Layers size={21} /></span> krishna.code</div>
+        <div className="brand-mark"><img className="brand-icon" src="/krishna-code-logo.svg" alt="" /><span>Krishna Code AI</span></div>
         <div className="network-status" />
       </header>
 

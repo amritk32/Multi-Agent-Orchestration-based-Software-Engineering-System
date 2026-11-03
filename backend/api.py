@@ -2,21 +2,22 @@ import json
 import threading
 import queue
 from fastapi.encoders import jsonable_encoder
-from aapi import OPEN_AI_API
+import os
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from datetime import datetime
-from sqlalchemy import inspect, text
+from aapi import OPEN_AI_API
+
 from mod2_workflow import Module2Workflow
 from schemas import AuditInput, Module3
 
 import traceback
 
 from sqlalchemy.orm import Session
-from database.database import Base, engine, SessionLocal
+from database.database import SessionLocal
 from database.models import ProjectDetails, Artifacts
 
 from auth.dependencies import get_current_user
@@ -26,8 +27,6 @@ from mod1_workflow import Module1Workflow
 from events import set_event_queue
 from requirements_validation import validate_requirements
 from rag_service import ProjectRAGService
-
-from database.models import ProjectDetails, Artifacts
 
 app = FastAPI(
     title="Krishna Code AI",
@@ -39,6 +38,10 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://multi-agent-orchestration-based-softwa-git-7aeb0e-radhe-krishna.vercel.app",
+        "https://multi-agent-orchestration-based-software-engineering-np3qr73fh.vercel.app",
+        "https://multi-agent-orchestration-based-sof.vercel.app",
+        "https://multi-agent-orchestration-based-software-engineer-radhe-krishna.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -54,20 +57,6 @@ class ProjectResponse(BaseModel):
     project_id: str
     project_name: str
     created_at: datetime
-
-
-@app.on_event("startup")
-def startup_event():
-    Base.metadata.create_all(bind=engine)
-
-    # create_all does not alter existing SQLite tables, so add fields introduced
-    # after the first database initialization explicitly.
-    with engine.begin() as connection:
-        artifact_columns = {
-            column["name"] for column in inspect(connection).get_columns("artifacts")
-        }
-        if "readme" not in artifact_columns:
-            connection.execute(text("ALTER TABLE artifacts ADD COLUMN readme TEXT"))
 
 
 def get_db():
@@ -120,21 +109,18 @@ class GenerateRequest(BaseModel):
     requirements: str
 
 
-api_key = OPEN_AI_API
-
-if not api_key:
-    raise RuntimeError("OPENAI_API_KEY is not set. Export it before starting FastAPI.")
-
+if not OPEN_AI_API:
+    raise RuntimeError("OPEN_AI_API is not set in backend/.env.")
 
 llm1 = ChatOpenAI(
     model="gpt-5-mini",
     temperature=0,
-    api_key=api_key,
+    api_key=OPEN_AI_API,
 )
 llm2 = ChatOpenAI(
     model="gpt-5-nano",
     temperature=0,
-    api_key=api_key,
+    api_key=OPEN_AI_API,
 )
 
 agents = Agents(llm1, llm2)

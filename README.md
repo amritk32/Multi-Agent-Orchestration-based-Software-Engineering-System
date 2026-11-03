@@ -34,6 +34,7 @@ frontend, and README artifacts.
 - Streaming project chatbot responses through Server-Sent Events.
 - Source labels showing which project documents informed a chatbot answer.
 - SQLite persistence for projects, artifacts, and indexed RAG document chunks.
+- Cyber Intelligence security assessments for generated backend code.
 
 ## Architecture
 
@@ -67,7 +68,7 @@ printed by the application.
 - An OpenAI API key
 
 The backend uses OpenAI models for generation, embeddings, and project chat.
-The key is read from `OPENAI_API_KEY`.
+The key is read from `OPEN_AI_API` in `backend/.env`.
 
 ## Supabase setup
 
@@ -88,12 +89,13 @@ same project.
 
 ### Backend
 
-Set the OpenAI key in the shell that starts FastAPI:
+Add the backend API keys to `backend/.env`:
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
+OPEN_AI_API="your-openai-api-key"
 ```
 
+Save these values in `backend/.env`. The backend loads that file automatically.
 Never commit API keys, `.env` files containing secrets, virtual environments,
 SQLite databases, or generated build output.
 
@@ -112,6 +114,10 @@ client key. The placeholder value `your_actual_publishable_key` is not valid.
 Restart Vite after changing environment variables.
 
 `VITE_API_URL` is optional and defaults to `http://localhost:8000`.
+For local development, set it explicitly to `http://localhost:8000`. If it is
+set to a deployed URL, `npm run dev` will still load the frontend locally but
+all project, generation, and audit requests will go to that remote backend;
+the local uvicorn terminal will therefore show no request or agent logs.
 
 ## Installation
 
@@ -133,7 +139,8 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install fastapi uvicorn pydantic python-dotenv sqlalchemy \
-  langchain-openai langchain-core langgraph langchain-ollama
+  langchain langchain-openai langchain-core langchain-community \
+  langgraph langchain-ollama faiss-cpu rank-bm25
 
 cd ../frontend
 npm install
@@ -148,7 +155,6 @@ Terminal 1, backend:
 ```bash
 cd backend
 source venv/bin/activate
-export OPENAI_API_KEY="your-openai-api-key"
 python -m uvicorn api:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -172,7 +178,6 @@ Open <http://localhost:5173>.
 `run.sh` starts Uvicorn and Vite together:
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
 ./run.sh
 ```
 
@@ -192,10 +197,16 @@ exist. Stop the combined launcher with `Ctrl+C`.
 8. Open **Ask the project** to use the grounded project assistant.
 9. Open **Open Project** later to reload projects belonging to the signed-in
    user.
-10. Use **Sign out**, then confirm the logout action.
+10. Open **Cyber Intelligence** to select a saved project and run a security
+    assessment against its generated backend.
+11. Use **Sign out**, then confirm the logout action.
 
 Unauthenticated users cannot access the project workspace. The backend remains
 the final authorization boundary even if a frontend request is modified.
+
+The frontend uses the shared Krishna Code AI logo across workspace screens.
+Cyber Intelligence project panels stack on narrow screens, and generated code
+and assessment findings remain within the mobile viewport.
 
 ## Backend API
 
@@ -421,12 +432,12 @@ For another backend host or port:
 VITE_API_URL="http://localhost:9000" npm run dev
 ```
 
-### `OPENAI_API_KEY is not set`
+### `OPEN_AI_API is not set`
 
-Set the key in the same terminal that starts Uvicorn:
+Add the key to `backend/.env` and restart the backend:
 
-```bash
-export OPENAI_API_KEY="your-openai-api-key"
+```env
+OPEN_AI_API="your-openai-api-key"
 ```
 
 ### The project chatbot has no context

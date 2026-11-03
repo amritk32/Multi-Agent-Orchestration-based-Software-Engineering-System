@@ -14,9 +14,9 @@ if ! command -v npm >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ -z "${OPENAI_API_KEY:-}" ]; then
-  echo "OPENAI_API_KEY is not set."
-  echo 'Run: export OPENAI_API_KEY="your-key"'
+if [ ! -f "$ROOT/backend/.env" ]; then
+  echo "backend/.env is missing."
+  echo "Add OPEN_AI_API to backend/.env."
   exit 1
 fi
 

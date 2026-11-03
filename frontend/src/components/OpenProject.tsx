@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity, AlertCircle, ArrowLeft, FileCode2, FolderOpen, Loader2, Trash2, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, FileCode2, FolderOpen, Loader2, Trash2, X } from 'lucide-react';
 import { apiClient, ProjectDetails, ProjectSummary } from '../api';
 
 interface OpenProjectProps {
@@ -95,7 +95,7 @@ export default function OpenProject({ onBack, onOpenProject }: OpenProjectProps)
           <ArrowLeft size={16} /> Home
         </button>
         <div className="brand-mark">
-          <span className="brand-icon"><Activity size={21} /></span> krishna.code
+          <img className="brand-icon" src="/krishna-code-logo.svg" alt="" /><span>Krishna Code AI</span>
         </div>
         <div className="network-status">
         </div>

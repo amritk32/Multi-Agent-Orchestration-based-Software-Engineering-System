@@ -1,0 +1,50 @@
+# Krishna Code AI - backend Python dependencies
+#
+# Install from the repository root with:
+#   python -m pip install -r requirements.txt
+#
+# Frontend dependencies are managed by frontend/package.json. Install them with:
+#   cd frontend && npm install
+
+# API server
+fastapi
+uvicorn
+pydantic
+python-dotenv
+
+# Persistence and authentication
+sqlalchemy
+PyJWT
+psycopg[binary]
+cryptography
+
+# LangChain workflows and model providers
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-ollama
+langchain-classic
+langgraph
+
+# Hybrid RAG retrieval
+faiss-cpu
+rank-bm25
+
+# Frontend dependency inventory (installed through frontend/package.json)
+# @supabase/supabase-js
+# axios
+# lucide-react
+# react
+# react-dom
+# react-syntax-highlighter
+# @tailwindcss/typography
+# @types/react
+# @types/react-dom
+# @types/react-syntax-highlighter
+# @vitejs/plugin-react
+# autoprefixer
+# postcss
+# tailwindcss
+# typescript
+# vite

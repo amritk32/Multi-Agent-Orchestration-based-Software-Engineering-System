@@ -325,7 +325,7 @@ export default function ProjectWorkflow({ onBack, projectId, projectName, initia
               <ArrowLeft size={16} /> Home
             </button>
           </div>
-          <div className="brand-mark"><span className="brand-icon"><Activity size={21} /></span> krishna.code</div>
+          <div className="brand-mark"><img className="brand-icon" src="/krishna-code-logo.svg" alt="" /><span>Krishna Code AI</span></div>
           <div className="network-status" />
         </div>
 
@@ -454,7 +454,7 @@ export default function ProjectWorkflow({ onBack, projectId, projectName, initia
         >
           <ArrowLeft size={16} /> Home
         </button>
-        <div className="brand-mark"><span className="brand-icon"><Activity size={21} /></span> krishna.code</div>
+        <div className="brand-mark"><img className="brand-icon" src="/krishna-code-logo.svg" alt="" /><span>Krishna Code AI</span></div>
         <div className="network-status" />
         <button className="new-generation" title="Reset workspace" onClick={() => setRequirements('')}><RotateCcw size={16} /></button>
       </header>
