@@ -28,7 +28,9 @@ frontend, and README artifacts.
   5. Frontend generation
   6. Python syntax analysis
   7. README generation
-- Separate live backend and frontend code streams.
+- Separate live backend and frontend code streams, delivered through
+  project-scoped asynchronous event queues so independent projects can stream
+  concurrently.
 - Copyable generated code and artifact panels.
 - Project-scoped RAG indexing with OpenAI embeddings.
 - Streaming project chatbot responses through Server-Sent Events.
@@ -336,7 +338,7 @@ backend/
 ├── rag_service.py               Project document indexing and chat retrieval
 ├── syntax_analysis.py           Python AST syntax analyzer
 ├── requirements_validation.py   User-input validation
-├── events.py                    Thread-safe workflow event queue
+├── events.py                    Project-scoped asynchronous event queues
 ├── aapi.py                      Environment-based OpenAI key loading
 └── database/
     ├── database.py              SQLAlchemy engine, Base, and sessions

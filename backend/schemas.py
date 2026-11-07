@@ -7,6 +7,7 @@ class ReviewResult(BaseModel):
 
 
 class Module1(BaseModel):
+    project_id: str = ""
     requirements: str = ""
     architecture: str = ""
     boilerplate: str = ""
@@ -55,6 +56,7 @@ class FinalAuditReport(BaseModel):
 
 
 class Module3(BaseModel):
+    project_id: str = ""
     source_code: str = ""
 
     security_result: SecurityAnalysisOutput | None = None

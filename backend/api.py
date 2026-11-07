@@ -1,6 +1,6 @@
+import asyncio
 import json
 import threading
-import queue
 from fastapi.encoders import jsonable_encoder
 import os
 from fastapi import Depends, FastAPI, HTTPException
@@ -24,7 +24,7 @@ from auth.dependencies import get_current_user
 
 from agents import Agents
 from mod1_workflow import Module1Workflow
-from events import set_event_queue
+from events import ProjectEventManager
 from requirements_validation import validate_requirements
 from rag_service import ProjectRAGService
 
@@ -38,6 +38,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174/",
+        "http://127.0.0.1:5174",
         "https://multi-agent-orchestration-based-softwa-git-7aeb0e-radhe-krishna.vercel.app",
         "https://multi-agent-orchestration-based-software-engineering-np3qr73fh.vercel.app",
         "https://multi-agent-orchestration-based-sof.vercel.app",
@@ -124,8 +126,9 @@ llm2 = ChatOpenAI(
 )
 
 agents = Agents(llm1, llm2)
-workflow = Module1Workflow(agents)
-module2_workflow = Module2Workflow(agents)
+event_manager = ProjectEventManager()
+workflow = Module1Workflow(agents, event_manager)
+module2_workflow = Module2Workflow(agents, event_manager)
 rag_service = ProjectRAGService()
 
 
@@ -193,13 +196,10 @@ def generate(
         )
 
     try:
-        print(f"\n{'='*60}")
-        print(f"Starting workflow for project: {project.project_name}")
-        print(f"{'='*60}\n")
-
         # Invoke workflow with proper state initialization
         result = workflow.graph.invoke(
             {
+                "project_id": request.project_id,
                 "requirements": requirements,
                 "architecture": "",
                 "boilerplate": "",
@@ -245,14 +245,7 @@ def generate(
         db.commit()
         index_project_documents(db, request.project_id, result)
 
-        print(f"\n{'='*60}")
-        print(f"Workflow completed successfully!")
-        print(f"{'='*60}\n")
-
     except Exception as exc:
-        print(f"\n{'='*60}")
-        print(f"❌ WORKFLOW ERROR: {str(exc)}")
-        print(f"{'='*60}\n")
         import traceback
 
         traceback.print_exc()
@@ -309,6 +302,7 @@ def audit_project(
 
     try:
         initial_state = Module3(
+            project_id=project_id,
             source_code=artifact.backend_code,
         )
 
@@ -382,16 +376,13 @@ async def generate_stream(
     async def event_generator():
         """Generator that yields Server-Sent Events"""
         # Create event queue for this stream
-        event_q: queue.Queue = queue.Queue()
-        set_event_queue(event_q)
+        event_q = event_manager.subscribe(project_id, asyncio.get_running_loop())
 
         try:
             # Emit start event
             yield f"data: {json.dumps({'type': 'status', 'message': 'Starting code generation workflow'})}\n\n"
 
-            print(f"\n{'='*60}")
-            print(f"Starting streaming workflow...")
-            print(f"{'='*60}\n")
+            print("Starting streaming workflow...")
 
             # Run workflow in a thread so we can monitor the queue
             result_holder = {}
@@ -401,6 +392,7 @@ async def generate_stream(
                 try:
                     result_holder["result"] = workflow.graph.invoke(
                         {
+                            "project_id": project_id,
                             "requirements": requirements,
                             "architecture": "",
                             "boilerplate": "",
@@ -414,7 +406,7 @@ async def generate_stream(
                     exception_holder["error"] = e
                 finally:
                     # Signal completion
-                    event_q.put({"type": "workflow_done"})
+                    event_manager.publish(project_id, {"type": "workflow_done"})
 
             workflow_thread = threading.Thread(target=run_workflow, daemon=True)
             workflow_thread.start()
@@ -423,8 +415,7 @@ async def generate_stream(
             workflow_complete = False
             while not workflow_complete:
                 try:
-                    # Get events from queue with timeout to avoid blocking forever
-                    event = event_q.get(timeout=0.1)
+                    event = await event_q.get()
 
                     if event["type"] == "workflow_done":
                         workflow_complete = True
@@ -448,14 +439,8 @@ async def generate_stream(
                         yield f"data: {json.dumps(event)}\n\n"
                     elif event["type"] == "code_token":
                         yield f"data: {json.dumps({'type': 'code_token', 'token': event.get('token', ''), 'file': event.get('file')})}\n\n"
-                except queue.Empty:
-                    # No events, continue waiting
-                    if not workflow_thread.is_alive():
-                        # Thread finished but didn't signal completion properly
-                        workflow_complete = True
-                        break
-                    continue
-
+                except asyncio.CancelledError:
+                    raise
             # Check if there was an error
             if "error" in exception_holder:
                 raise exception_holder["error"]
@@ -513,7 +498,7 @@ async def generate_stream(
             yield f"data: {json.dumps({'type': 'error', 'error': error_message})}\n\n"
         finally:
             # Clean up
-            set_event_queue(None)
+            event_manager.unsubscribe(project_id)
 
     return StreamingResponse(
         event_generator(),

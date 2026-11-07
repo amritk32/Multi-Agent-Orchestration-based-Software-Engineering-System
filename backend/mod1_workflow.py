@@ -2,7 +2,7 @@ import logging
 
 from agents import Agents, Module1
 from langgraph.graph import StateGraph, START, END
-from events import emit_event
+from events import ProjectEventManager
 from syntax_analysis import SyntaxAnalyzer
 from requirements_validation import validate_requirements
 
@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 
 class Module1Workflow:
 
-    def __init__(self, agents: Agents):
+    def __init__(self, agents: Agents, event_manager: ProjectEventManager):
         self.agents = agents
+        self.event_manager = event_manager
         self.syntax_analyzer = SyntaxAnalyzer()
         self.graph = self._build_graph()
 
@@ -20,62 +21,99 @@ class Module1Workflow:
         validation_error = validate_requirements(state.requirements)
         if validation_error:
             raise ValueError(validation_error)
-        logger.info("Requirements Agent started")
-        emit_event({"type": "agent_start", "agent": "requirements"})
+        # Added print statement before logging
+        print(f"Requirements Agent started project_id={state.project_id}")
+        logger.info("Requirements Agent started project_id=%s", state.project_id)
+        self.event_manager.publish(
+            state.project_id, {"type": "agent_start", "agent": "requirements"}
+        )
         try:
             state.requirements = self.agents.requirements_agent(state.requirements)
-            logger.info("Requirements Agent finished")
-            emit_event({"type": "agent_end", "agent": "requirements"})
+            # Added print statement before logging
+            print(f"Requirements Agent finished project_id={state.project_id}")
+            logger.info("Requirements Agent finished project_id=%s", state.project_id)
+            self.event_manager.publish(
+                state.project_id, {"type": "agent_end", "agent": "requirements"}
+            )
         except Exception as e:
-            logger.exception("Requirements Agent failed")
+            # Added Print statement before logging
+            print(f"Requirements Agent failed project_id={state.project_id}")
+            logger.exception(
+                "Requirements Agent failed project_id=%s", state.project_id
+            )
             raise
         return state
 
     def syntax_analysis_node(self, state: Module1):
-        logger.info("Syntax Analysis started")
-        emit_event({"type": "agent_start", "agent": "syntax_analysis"})
+        print(f"Syntax Analysis started project_id={state.project_id}")
+        logger.info("Syntax Analysis started project_id=%s", state.project_id)
+        self.event_manager.publish(
+            state.project_id, {"type": "agent_start", "agent": "syntax_analysis"}
+        )
         state.syntax_valid = self.syntax_analyzer.analyze(state.backend_code)
         state.syntax_error = self.syntax_analyzer.last_error
-        emit_event(
+        print(f"Syntax Analysis finished project_id={state.project_id}")
+        logger.info("Syntax Analysis finished project_id=%s", state.project_id)
+        self.event_manager.publish(
+            state.project_id,
             {
                 "type": "agent_end",
                 "agent": "syntax_analysis",
                 "syntax_valid": state.syntax_valid,
                 "syntax_error": state.syntax_error,
-            }
+            },
         )
         return state
 
     def architecture_node(self, state: Module1):
-        logger.info("Architecture Agent started")
-        emit_event({"type": "agent_start", "agent": "architecture"})
+        print(f"Architecture Agent started project_id={state.project_id}")
+        logger.info("Architecture Agent started project_id=%s", state.project_id)
+        self.event_manager.publish(
+            state.project_id, {"type": "agent_start", "agent": "architecture"}
+        )
         try:
             state.architecture = self.agents.architecture_agent(state.requirements)
-            logger.info("Architecture Agent finished")
-            emit_event({"type": "agent_end", "agent": "architecture"})
+            print(f"Architecture Agent finished project_id={state.project_id}")
+            logger.info("Architecture Agent finished project_id=%s", state.project_id)
+            self.event_manager.publish(
+                state.project_id, {"type": "agent_end", "agent": "architecture"}
+            )
         except Exception as e:
-            logger.exception("Architecture Agent failed")
+            print(f"Architecture Agent failed project_id={state.project_id}")
+            logger.exception(
+                "Architecture Agent failed project_id=%s", state.project_id
+            )
             raise
         return state
 
     def boilerplate_node(self, state: Module1):
-        logger.info("Boilerplate Agent started")
-        emit_event({"type": "agent_start", "agent": "boilerplate"})
+        print(f"Boilerplate Agent started project_id={state.project_id}")
+        logger.info("Boilerplate Agent started project_id=%s", state.project_id)
+        self.event_manager.publish(
+            state.project_id, {"type": "agent_start", "agent": "boilerplate"}
+        )
         try:
             state.boilerplate = self.agents.boilerplate_agent(
                 state.requirements,
                 state.architecture,
             )
-            logger.info("Boilerplate Agent finished")
-            emit_event({"type": "agent_end", "agent": "boilerplate"})
+            print(f"Boilerplate Agent finished project_id={state.project_id}")
+            logger.info("Boilerplate Agent finished project_id=%s", state.project_id)
+            self.event_manager.publish(
+                state.project_id, {"type": "agent_end", "agent": "boilerplate"}
+            )
         except Exception as e:
-            logger.exception("Boilerplate Agent failed")
+            print(f"Boilerplate Agent failed project_id={state.project_id}")
+            logger.exception("Boilerplate Agent failed project_id=%s", state.project_id)
             raise
         return state
 
     def code_writing_node(self, state: Module1):
-        logger.info("Code Writing Agent started")
-        emit_event({"type": "agent_start", "agent": "code_writing"})
+        print(f"Code Writing Agent started project_id={state.project_id}")
+        logger.info("Code Writing Agent started project_id=%s", state.project_id)
+        self.event_manager.publish(
+            state.project_id, {"type": "agent_start", "agent": "code_writing"}
+        )
         try:
             current_file = "backend"
             backend_parts: list[str] = []
@@ -84,14 +122,19 @@ class Module1Workflow:
             def on_file_start(file_name: str):
                 nonlocal current_file
                 current_file = file_name
-                emit_event({"type": "file_start", "file": file_name})
+                self.event_manager.publish(
+                    state.project_id, {"type": "file_start", "file": file_name}
+                )
 
             def on_token(token: str):
                 if current_file == "backend":
                     backend_parts.append(token)
                 else:
                     frontend_parts.append(token)
-                emit_event({"type": "code_token", "token": token, "file": current_file})
+                self.event_manager.publish(
+                    state.project_id,
+                    {"type": "code_token", "token": token, "file": current_file},
+                )
 
             state.code = self.agents.code_writing_agent(
                 requirements=state.requirements,
@@ -100,24 +143,33 @@ class Module1Workflow:
                 existing_code=state.code,
                 on_token=on_token,
                 on_file_start=on_file_start,
-                on_file_end=lambda file_name: emit_event(
-                    {"type": "file_end", "file": file_name}
+                on_file_end=lambda file_name: self.event_manager.publish(
+                    state.project_id, {"type": "file_end", "file": file_name}
                 ),
             )
             state.backend_code = "".join(backend_parts).strip()
             state.frontend_code = "".join(frontend_parts).strip()
 
-            logger.info("Code Writing Agent finished")
-            emit_event({"type": "agent_end", "agent": "code_writing"})
+            print(f"Code Writing Agent finished project_id={state.project_id}")
+            logger.info("Code Writing Agent finished project_id=%s", state.project_id)
+            self.event_manager.publish(
+                state.project_id, {"type": "agent_end", "agent": "code_writing"}
+            )
         except Exception as e:
-            logger.exception("Code Writing Agent failed")
+            print(f"Code Writing Agent failed project_id={state.project_id}")
+            logger.exception(
+                "Code Writing Agent failed project_id=%s", state.project_id
+            )
             raise
 
         return state
 
     def analysis_node(self, state: Module1):
-        logger.info("Analysis Agent started")
-        emit_event({"type": "agent_start", "agent": "analysis"})
+        print(f"Analysis Agent started project_id={state.project_id}")
+        logger.info("Analysis Agent started project_id=%s", state.project_id)
+        self.event_manager.publish(
+            state.project_id, {"type": "agent_start", "agent": "analysis"}
+        )
         try:
             result = self.agents.analysis_agent(
                 generated_code=state.code,
@@ -126,10 +178,14 @@ class Module1Workflow:
             state.review_result = result.model_dump()
             state.report = result.final_readme
 
-            logger.info("Analysis Agent finished")
-            emit_event({"type": "agent_end", "agent": "analysis"})
+            print(f"Analysis Agent finished project_id={state.project_id}")
+            logger.info("Analysis Agent finished project_id=%s", state.project_id)
+            self.event_manager.publish(
+                state.project_id, {"type": "agent_end", "agent": "analysis"}
+            )
         except Exception as e:
-            logger.exception("Analysis Agent failed")
+            print(f"Analysis Agent failed project_id={state.project_id}")
+            logger.exception("Analysis Agent failed project_id=%s", state.project_id)
             raise
 
         return state

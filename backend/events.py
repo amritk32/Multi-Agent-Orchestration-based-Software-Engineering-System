@@ -1,31 +1,44 @@
-"""Event queue management for workflow progress tracking"""
+"""Project-scoped asynchronous event delivery for workflow progress updates."""
 
-import queue
+import asyncio
 import threading
-from typing import Optional
-
-_event_queue: Optional[queue.Queue] = None
-_queue_lock = threading.Lock()
+from collections.abc import Mapping
+from typing import Any
 
 
-def get_event_queue() -> Optional[queue.Queue]:
-    """Get the current event queue for this thread's workflow"""
-    with _queue_lock:
-        return _event_queue
+class ProjectEventManager:
+    """Route workflow events to an asyncio queue for each project."""
 
+    def __init__(self) -> None:
+        self._queues: dict[str, asyncio.Queue[dict[str, Any]]] = {}
+        self._loops: dict[str, asyncio.AbstractEventLoop] = {}
+        self._lock = threading.Lock()
 
-def set_event_queue(q: Optional[queue.Queue]) -> None:
-    """Set the event queue for this thread's workflow"""
-    global _event_queue
-    with _queue_lock:
-        _event_queue = q
+    def subscribe(
+        self,
+        project_id: str,
+        loop: asyncio.AbstractEventLoop,
+    ) -> asyncio.Queue[dict[str, Any]]:
+        """Create or reuse the queue associated with a project."""
+        with self._lock:
+            event_queue = self._queues.setdefault(project_id, asyncio.Queue())
+            self._loops[project_id] = loop
+            return event_queue
 
+    def unsubscribe(self, project_id: str) -> None:
+        """Release a project's queue after its stream has finished."""
+        with self._lock:
+            self._queues.pop(project_id, None)
+            self._loops.pop(project_id, None)
 
-def emit_event(event: dict) -> None:
-    """Emit an event to the current event queue if one is set"""
-    q = get_event_queue()
-    if q is not None:
-        try:
-            q.put(event)
-        except Exception as e:
-            print(f"Warning: Failed to emit event: {e}")
+    def publish(self, project_id: str, event: Mapping[str, Any]) -> None:
+        """Publish an event from synchronous workflow code or a worker thread."""
+        with self._lock:
+            event_queue = self._queues.get(project_id)
+            loop = self._loops.get(project_id)
+
+        if event_queue is None or loop is None or loop.is_closed():
+            return
+
+        event_data = dict(event)
+        loop.call_soon_threadsafe(event_queue.put_nowait, event_data)
